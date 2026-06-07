@@ -1,0 +1,72 @@
+RAG
+It is the backbone of AI Data Engineering.
+Retrieval Augmented Generation
+
+Embeddings
+prompt(input) -> OpenAI Model(Embedding Model) -> Embedding vector(understood by Machine)([0.2,0.4,-0.9,...]) -> OpenAI Model + Vector DB(Embeddings) ->Cosine Similarity-> Top 3 Vectors(Retrieval) -> Open AI Model+ Top 3 Vectors+ User Prompt(Augmented)-> response to user(output)(Generation)
+
+MySQL -> Tabular Data
+MongoDB-> Semi structured/json data
+RAG(Vector DB)(Vector Store) -> Embeddings [1536] size of vector or dimensions on which we evaluate our prompt
+RAG is an end to end process(RAG Applications)
+
+Vector DB contains both Vectors + MetaData
+Chatgpt has integrated web tools with it so even if it is not trained on current data it can web search normally
+We can create our own Vector DB and provide it to the LLM model and then query it.
+
+USER->prompt-> LLM+ Vector DB(External knowledge) -> response to user
+
+RAG End to End Process:
+
+Step 1: Document Input to text(PDF,Excel,File,Image)
+Step 2: Chunking
+Step 3: Embedding Vectors and Mappings(Each vector is mapped to it's corresponding chunk)
+Step 4: Store the Embedding Vectors in the Vector DB
+Step 5: Search/ semantic search(Cosine Similarity), user input will be converted into a Embedding Vector, this vector will be provide to OpenAi Model and will perform a cosine similarity with the vectors in the Vector DB and return the top 3 matched Vectors, the model will get context of the vectors and the user prompt and return the response to User
+
+from dotenv import load_dotenv()
+load_dotenv() -> loads all the environment variables
+
+uv init
+uv add venv .venv
+.venv\Scipts\activate
+
+uv add ipykernel
+
+install langchain_openai langchain_community langchain_core packages
+
+To retrieve environment varaible os.environ['OPENAI_API_KEY']
+
+langchain_core.documents import Document -> To prepae the Document from text
+
+langchain_text_splitters import RecursiveCharacterTextSplitter -> For spliiting the document into small chunks
+
+chunk_size is a parameter an chunk_overlap is another parameter to retain context from previous chunk
+
+from langchain_openai import OpenAIEmbeddings
+
+for vectore store use ChromaDB, FAISS
+
+We only pass the Embedding model and the Chunks to Chroma DB IT automatically creates the embeddings And stores it in the Vector DB
+
+from langchain_community.vectorstores import Chroma
+
+
+Vectorstore = Chroma.from_documents(documents=chunks,
+                                 embedding=embeddings,
+                                 persist_directory="./VectorDB")
+
+
+IN Chroma DB the vectors are mapped to Metadata+text(page_content)(Mapped Chunk)(Augmented)
+
+vectorstore.similarity_search("What is AI?", k=3) -> performs cosine similaity and returns top 3 mapped chunks -> Generation
+
+It is an IN Memory VectorStore
+
+To persist the Vector Store pass this parameter persist_directory="./VectorDB" to VectorStore Creation
+
+vectorstore.add_documents(chunks) -> add more chunks to the same exisiting persist VectorDB
+
+Docker Model Runner helps to run the AI Models locally in our machine without using API key.
+
+We can use the same OpenAI model code for creating an llm call just change the base_url to that of our personal server where the Model is running and the particular Docker model that we have pulled in.
